@@ -110,6 +110,64 @@ docker build --platform linux/amd64 -t csc3050-lab6 .
 docker run --rm --platform linux/amd64 csc3050-lab6
 ```
 
+## Using simrun directly in the terminal
+
+If you prefer running the simulator yourself, open a terminal in your Ubuntu
+VM and clone the repository:
+
+```bash
+git clone https://github.com/lily1c/csc3050-lab6.git
+cd csc3050-lab6
+chmod +x tools/simrun
+```
+
+If you already cloned it, go into that folder instead. Run commands from the
+repository root so the paths below point to the right files.
+
+To run the provided Lab 5 tests against the current code:
+
+```bash
+./tools/simrun -debug lab6-specs.dat tests/lab5/tests.dat
+```
+
+To use your own test file, save it as `my-test.dat` in the repository folder:
+
+```bash
+./tools/simrun -debug lab6-specs.dat my-test.dat
+```
+
+For example, this small test copies AC into X and then halts:
+
+```text
+0005 AC
+0000 X
+0010 SP
+0000 PC
+0000 CVZN
+3001
+0000
+```
+
+After MOVE, expect AC = 0005, X = 0005, SP = 0010, PC = 0001, and CVZN = 0000.
+The following HALT fetch advances PC to 0002 in the detailed trace.
+
+The simulator writes its output into the folder where you ran the command.
+For the first test, read the register summary or the full state trace with:
+
+```bash
+cat summary.1
+less details.1
+```
+
+Press `q` to exit `less`. Multiple tests produce additional files such as
+`summary.2` and `details.2`. Another run in the same folder can overwrite these
+files, so copy any results you want to keep before running again.
+
+Direct `simrun` execution shows what happened; it does not compare the output
+with expected results. Use `python3 tools/check.py` or GitHub Actions for the
+automatic comparisons. `./tools/simrun` must be run in Linux x86-64, not directly
+in your Mac terminal.
+
 ## Working together
 
 Use separate branches and agree on temporary registers and state numbers before
