@@ -130,10 +130,11 @@ To run the provided Lab 5 tests against the current code:
 ./tools/simrun -debug lab6-specs.dat tests/lab5/tests.dat
 ```
 
-To use your own test file, save it as `my-test.dat` in the repository folder:
+Put your own Lab 6 test cases in `tests6.dat` in the repository folder.
+It starts empty, so add a test before running it:
 
 ```bash
-./tools/simrun -debug lab6-specs.dat my-test.dat
+./tools/simrun -debug lab6-specs.dat tests6.dat
 ```
 
 For example, this small test copies AC into X and then halts:
@@ -268,6 +269,7 @@ message with your partner. Do not use a force push to overwrite their changes.
 | File | Purpose |
 | --- | --- |
 | `lab6-specs.dat` | Working Lab 6 microcode |
+| `tests6.dat` | Empty file for our own Lab 6 test cases |
 | `baseline/lab5-specs.dat` | Original working Lab 5 code |
 | `tests/lab5/` | Provided Lab 5 tests and expected results |
 | `tools/cases.py` | Additional Lab 6 test cases |
