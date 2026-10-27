@@ -174,6 +174,95 @@ Use separate branches and agree on temporary registers and state numbers before
 editing shared routines. Review each other's changes in a pull request and check
 the test results before combining them.
 
+### Saving and sharing changes to the specs file
+
+Both partners need their own GitHub account. The repository owner needs to add
+the other partner under **Settings → Collaborators**, and the partner needs to
+accept the invitation before they can push a branch.
+
+From your cloned repository, first check whether you have unsaved Git changes:
+
+```bash
+git status
+```
+
+If the working tree is clean, start your work from the latest main branch:
+
+```bash
+git switch main
+git pull --ff-only origin main
+git switch -c add-instruction
+```
+
+Use a branch name that describes your work, such as `add-instruction` or
+`logic-instructions`. Each partner should use a different branch. If `git status`
+shows existing changes, commit them on their current work branch first rather
+than switching away and risking mixing unrelated work.
+
+Edit the working specs file, not the copy under `baseline/`:
+
+```bash
+nano lab6-specs.dat
+```
+
+In nano, press **Ctrl+O**, then **Enter** to save, and **Ctrl+X** to exit.
+Keep the leading spaces on executable microinstruction lines: the simulator
+treats a line starting with a nonblank character as a comment.
+
+Review exactly what you changed:
+
+```bash
+git diff -- lab6-specs.dat
+git status
+```
+
+Then save the change in Git and send your branch to GitHub:
+
+```bash
+git add lab6-specs.dat
+git commit -m "Implement register ADD"
+git push -u origin add-instruction
+```
+
+Replace the commit message with a short description of what you actually changed,
+and use your own branch name in the push command. `git add` selects the file,
+`git commit` records the change locally, and `git push` uploads those commits.
+For later changes on that same branch, repeat add and commit, then use `git push`.
+
+If Git asks for your identity, configure your own name and GitHub email:
+
+```bash
+git config user.name "Your Name"
+git config user.email "YOUR_GITHUB_EMAIL"
+```
+
+If HTTPS authentication is not set up, use GitHub CLI in Ubuntu:
+
+```bash
+sudo apt install gh
+gh auth login
+```
+
+Choose GitHub.com, HTTPS, and browser login. Agree to authenticate Git when
+prompted. Sign in with your own account; do not share passwords or tokens.
+
+After pushing, open the repository on GitHub and select **Compare & pull request**.
+Choose `main` as the base and your work branch as the comparison branch. Describe
+the change and ask your partner to review it. GitHub Actions runs automatically.
+Check the results before merging; unrelated Lab 6 tests will still fail while
+their instructions are unfinished, so review the individual failures as well.
+
+After the pull request is merged and your working tree is clean, get the combined
+version before starting another branch:
+
+```bash
+git switch main
+git pull --ff-only origin main
+```
+
+If Git reports a conflict or rejects a push, keep your work and inspect the
+message with your partner. Do not use a force push to overwrite their changes.
+
 ## Main files
 
 | File | Purpose |
