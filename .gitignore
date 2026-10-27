@@ -1,0 +1,11 @@
+outputs/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+*.pem
+*_key
+*_key.pub
+summary.*
+details.*
+*.utm/

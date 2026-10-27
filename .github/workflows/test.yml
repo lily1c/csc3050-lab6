@@ -1,0 +1,44 @@
+name: Microcode checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    name: Test checker and independent oracle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s tools -p 'test_*.py' -v
+
+  simulator:
+    name: ${{ matrix.suite }} simulator checks
+    needs: harness
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [lab5, lab6]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Run simulator and compare complete results
+        run: python3 tools/check.py --suite "${{ matrix.suite }}"
+      - name: Save simulator logs and differences
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.suite }}-results
+          path: outputs/
+          if-no-files-found: warn
+          retention-days: 7

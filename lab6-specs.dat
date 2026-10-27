@@ -1,0 +1,127 @@
+*** CSC-3050 Lab 5 - Microinstruction Problem 2
+*** Assol Abasova
+*** MOVE: all source modes 0-6, destination modes 0-5.
+*** T2 holds the source value. T3 holds an extension word.
+*** T1 is arithmetic scratch. Address arithmetic preserves CVZN.
+
+*** Fetch opcode and advance the word-addressed PC.
+ st=0 rt='[pc]->mar' rac=1 rn=3 imar
+ st=1 rt='[[mar]]->mdr' read
+ st=2 rt='[mdr]->ir' omdr iir
+ st=3 rt='[pc]+1->q' rac=1 rn=3 ib p1 oadder
+ st=4 rt='[q]->pc' oq wac=1 wn=3
+     cond='ir1512' value=0 nst=10
+     cond='ir1512' value=3 nst=20
+     nst=10
+ st=10 halt
+
+*** Decode source mode.
+ st=20
+     cond='ir118' value=0 nst=30
+     cond='ir118' value=1 nst=40
+     cond='ir118' value=2 nst=50
+     cond='ir118' value=3 nst=60
+     cond='ir118' value=4 nst=70
+     cond='ir118' value=5 nst=70
+     cond='ir118' value=6 nst=70
+     nst=10
+
+*** Source register: capture its value.
+ st=30 rt='[src]->t2' rac=2 it2
+     nst=100
+
+*** Source indirect, followed by shared source memory read.
+ st=40 rt='[src]->mar' rac=2 imar
+ st=41 rt='[[mar]]->mdr' read
+ st=42 rt='[mdr]->t2' omdr it2
+     nst=100
+
+*** Source autoincrement: keep old address in MAR.
+ st=50 rt='[src]->mar; [src' rac=2 imar ib p1 oadder
+ st=51 rt='[q]->src' oq wac=2
+     nst=41
+
+*** Source autodecrement: T1 + FFFF subtracts one.
+ st=60 rt='[src]->t1' rac=2 it1
+ st=61 rt='[t1]-1->q' oa comp oadder
+ st=62 rt='[q]->src,mar' oq wac=2 imar
+     nst=41
+
+*** Read source extension word, then immediately advance PC.
+ st=70 rt='[pc]->mar' rac=1 rn=3 imar
+ st=71 rt='[[mar]]->mdr' read
+ st=72 rt='[mdr]->t3' omdr it3
+ st=73 rt='[pc]+1->q' rac=1 rn=3 ib p1 oadder
+ st=74 rt='[q]->pc' oq wac=1 wn=3
+     cond='ir118' value=4 nst=76
+     cond='ir118' value=5 nst=80
+     cond='ir118' value=6 nst=90
+     nst=10
+
+*** Source indexed: extension + source register.
+ st=76 rt='[t3]->t1' ot3 it1
+ st=77 rt='[t1]+[src]->q' rac=2 oa ib oadder
+ st=78 rt='[q]->mar' oq imar
+     nst=41
+*** Source absolute: extension is the memory address.
+ st=80 rt='[t3]->mar' ot3 imar
+     nst=41
+*** Source immediate: extension is the value itself.
+ st=90 rt='[t3]->t2' ot3 it2
+     nst=100
+
+*** Decode destination mode after completing source processing.
+ st=100
+     cond='ir7' value=1 nst=10
+     nst=101
+ st=101
+     cond='ir64' value=0 nst=110
+     cond='ir64' value=1 nst=120
+     cond='ir64' value=2 nst=130
+     cond='ir64' value=3 nst=140
+     cond='ir64' value=4 nst=150
+     cond='ir64' value=5 nst=150
+     nst=10
+
+*** Destination register: write result and update MOVE flags.
+ st=110 rt='[t2]->dst' ot2 wac=3 newz newn clrc clrv
+     nst=0
+
+*** Destination indirect.
+ st=120 rt='[dst]->mar' rac=3 imar
+     nst=180
+
+*** Destination autoincrement: keep old address in MAR.
+ st=130 rt='[dst]->mar; [dst' rac=3 imar ib p1 oadder
+ st=131 rt='[q]->dst' oq wac=3
+     nst=180
+
+*** Destination autodecrement.
+ st=140 rt='[dst]->t1' rac=3 it1
+ st=141 rt='[t1]-1->q' oa comp oadder
+ st=142 rt='[q]->dst,mar' oq wac=3 imar
+     nst=180
+
+*** Read destination extension word and advance PC.
+ st=150 rt='[pc]->mar' rac=1 rn=3 imar
+ st=151 rt='[[mar]]->mdr' read
+ st=152 rt='[mdr]->t3' omdr it3
+ st=153 rt='[pc]+1->q' rac=1 rn=3 ib p1 oadder
+ st=154 rt='[q]->pc' oq wac=1 wn=3
+     cond='ir64' value=4 nst=160
+     cond='ir64' value=5 nst=170
+     nst=10
+*** Destination indexed.
+ st=160 rt='[t3]->t1' ot3 it1
+ st=161 rt='[t1]+[dst]->q' rac=3 oa ib oadder
+ st=162 rt='[q]->mar' oq imar
+     nst=180
+*** Destination absolute.
+ st=170 rt='[t3]->mar' ot3 imar
+     nst=180
+
+*** Shared destination memory write. Flags describe the moved value.
+ st=180 rt='[t2]->mdr' ot2 imdr newz newn clrc clrv
+ st=181 rt='[mdr]->[mar]' write
+     nst=0
+
